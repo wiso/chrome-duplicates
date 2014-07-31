@@ -1,7 +1,7 @@
 function dumpBookmarks() {
   var bookmarkTreeNodes = chrome.bookmarks.getTree(
     function(bookmarkTreeNodes) {
-	var ul = $("<ul>");
+
 	var list = dumpTreeNodes(bookmarkTreeNodes);
 	
 	console.log(list[0].url, list[1].url, list[2].url, list[3].url, list[4].url);
@@ -12,16 +12,20 @@ function dumpBookmarks() {
 	list = list.filter( function(v,i,o){ return (i && v.url==o[i-1].url) ? v : 0;});
 	console.log(list);
 
+	var ul = $("<ul>");
 	for (i = 0; i < list.length; i++)
 	{
-	    var anchor = $('<a>');
-	    anchor.attr('href', list[i].url);
-	    anchor.append(list[i].title);
 	    var li = $('<li>');
-	    li.append(anchor);
+	    var anchor = $('<a>', { href: list[i].url });
+	    anchor.append(list[i].title);
+	    $('<input />', { type: 'checkbox', id: 'cb'+i, value: list[i].title }).appendTo(li);
+	    var label = $('<label />', { 'for': 'cb'+i });
+	    label.append(anchor);
+	    label.appendTo(li);
 	    ul.append(li);
 	}
-	$('#bookmarks').append(ul);
+	$("#list").append(ul);
+
     });
 }
 

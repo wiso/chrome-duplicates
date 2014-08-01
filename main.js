@@ -1,32 +1,40 @@
 function dumpBookmarks() {
-  var bookmarkTreeNodes = chrome.bookmarks.getTree(
-    function(bookmarkTreeNodes) {
-
+    var bookmarkTreeNodes = chrome.bookmarks.getTree(
+	function(bookmarkTreeNodes) {
+	    
 	var list = dumpTreeNodes(bookmarkTreeNodes);
-	
-	console.log(list[0].url, list[1].url, list[2].url, list[3].url, list[4].url);
-	list.sort(function(a, b) { if (b.url > a.url) return -1;
-				   if (b.url < a.url) return 1;
-				   return 0; });
-	console.log("sorted: ", list[0].url, list[1].url, list[2].url, list[3].url, list[4].url);
-	list = list.filter( function(v,i,o){ return (i && v.url==o[i-1].url) ? v : 0;});
-	console.log(list);
+	list = find_duplicates(list);
 
-	var ul = $("<ul>");
+	var table = $("<table>");
 	for (i = 0; i < list.length; i++)
 	{
-	    var li = $('<li>');
+	    var tr = $('<tr>');
+	    var td_input = $('<td>');
+	    var td_label = $('<td>');
 	    var anchor = $('<a>', { href: list[i].url });
 	    anchor.append(list[i].title);
-	    $('<input />', { type: 'checkbox', id: 'cb'+i, value: list[i].title }).appendTo(li);
+	    var input = $('<input />', { type: 'checkbox', id: 'cb'+i, value: list[i].title });
 	    var label = $('<label />', { 'for': 'cb'+i });
 	    label.append(anchor);
-	    label.appendTo(li);
-	    ul.append(li);
+	    td_input.append(input);
+	    td_label.append(anchor);
+	    tr.append(td_input);
+	    tr.append(td_label);
+
+	    table.append(tr);
 	}
-	$("#list").append(ul);
+	$("#list").append(table);
 
     });
+}
+
+function find_duplicates(list) {
+    var s = list;
+    s.sort(function(a, b) { if (b.url > a.url) return -1;
+			       if (b.url < a.url) return 1;
+			       return 0; });
+    s = s.filter( function(v,i,o){ return (i && v.url==o[i-1].url) ? v : 0;});
+    return s;
 }
 
 

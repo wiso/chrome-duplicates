@@ -4,6 +4,7 @@ function dumpBookmarks() {
 	    
 	    var list = dumpTreeNodes(bookmarkTreeNodes);
 	    list = find_duplicates(list);
+	    console.log(list);
 
 	    var table = $("<table>");
 	    for (i = 0; i < list.length; i++)
@@ -42,23 +43,27 @@ function dumpTreeNodes(bookmarkNodes) {
     var list = [];
     var i;
     for (i = 0; i < bookmarkNodes.length; i++) {
-	dumpNode(bookmarkNodes[i], list);
+	dumpNode(bookmarkNodes[i], list, []);
 
     }
     return list;
 }
 
-function dumpNode(bookmarkNode, list) {
+function dumpNode(bookmarkNode, list, contest) {
     if (bookmarkNode.children && bookmarkNode.children.length > 0) {
+	contest = contest.slice(0);
 	var j;
+	contest.push(bookmarkNode.title);
 	for (j = 0; j < bookmarkNode.children.length; j++) {
-	    dumpNode(bookmarkNode.children[j], list);
+	    dumpNode(bookmarkNode.children[j], list, contest);
 	}
     }
     else
     {
-	if (bookmarkNode.url)
+	if (bookmarkNode.url) {
+	    bookmarkNode.parent = contest;
 	    list.push(bookmarkNode);
+	}
     }
 }
 

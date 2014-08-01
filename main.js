@@ -2,37 +2,37 @@ function dumpBookmarks() {
     var bookmarkTreeNodes = chrome.bookmarks.getTree(
 	function(bookmarkTreeNodes) {
 	    
-	var list = dumpTreeNodes(bookmarkTreeNodes);
-	list = find_duplicates(list);
+	    var list = dumpTreeNodes(bookmarkTreeNodes);
+	    list = find_duplicates(list);
 
-	var table = $("<table>");
-	for (i = 0; i < list.length; i++)
-	{
-	    var tr = $('<tr>');
-	    var td_input = $('<td>');
-	    var td_label = $('<td>');
-	    var anchor = $('<a>', { href: list[i].url });
-	    anchor.append(list[i].title);
-	    var input = $('<input />', { type: 'checkbox', id: 'cb'+i, value: list[i].title });
-	    var label = $('<label />', { 'for': 'cb'+i });
-	    label.append(anchor);
-	    td_input.append(input);
-	    td_label.append(anchor);
-	    tr.append(td_input);
-	    tr.append(td_label);
+	    var table = $("<table>");
+	    for (i = 0; i < list.length; i++)
+	    {
+		var tr = $('<tr>');
+		var td_input = $('<td>');
+		var td_label = $('<td>');
+		var anchor = $('<a>', { href: list[i].url });
+		anchor.append(list[i].title);
+		var input = $('<input />', { type: 'checkbox', id: 'cb'+i, value: list[i].title });
+		var label = $('<label />', { 'for': 'cb'+i });
+		label.append(anchor);
+		td_input.append(input);
+		td_label.append(anchor);
+		tr.append(td_input);
+		tr.append(td_label);
 
-	    table.append(tr);
-	}
-	$("#list").append(table);
+		table.append(tr);
+	    }
+	    $("#list").append(table);
 
-    });
+	});
 }
 
 function find_duplicates(list) {
     var s = list;
     s.sort(function(a, b) { if (b.url > a.url) return -1;
-			       if (b.url < a.url) return 1;
-			       return 0; });
+			    if (b.url < a.url) return 1;
+			    return 0; });
     s = s.filter( function(v,i,o){ return (i && v.url==o[i-1].url) ? v : 0;});
     return s;
 }
@@ -45,7 +45,7 @@ function dumpTreeNodes(bookmarkNodes) {
 	dumpNode(bookmarkNodes[i], list);
 
     }
-  return list;
+    return list;
 }
 
 function dumpNode(bookmarkNode, list) {

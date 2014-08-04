@@ -9,7 +9,7 @@ function dumpBookmarks() {
 	    var nlinks = list_duplicates.length;
 
 	    var table = $("<table>");
-	    for (var i = 0; i < list_duplicates.length; i++)
+	    for (var i = 0; i < nlinks; i++)
 	    {
 		var tr = $('<tr>').addClass('url');
 		var td_title = $('<td>').attr("colspan", 2);
@@ -18,7 +18,7 @@ function dumpBookmarks() {
 		td_title.append(anchor);
 		tr.append(td_title);
 		table.append(tr);
-		for (var j = 0; j < list_duplicates[i].length; j++)
+		for (var j = 0; j < list_duplicates[i][1].length; j++)
 		{
 		    var duplicate = list_duplicates[i][1][j];
 		    var tr = $('<tr>');

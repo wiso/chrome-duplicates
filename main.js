@@ -11,13 +11,11 @@ function dumpBookmarks() {
 	    var table = $("<table>");
 	    for (var i = 0; i < list_duplicates.length; i++)
 	    {
-		var tr = $('<tr>');
-		var td_empty = $('<td>');
-		var td_title = $('<td>');
+		var tr = $('<tr>').addClass('url');
+		var td_title = $('<td>').attr("colspan", 2);
 		var anchor = $('<a>', { href: list_duplicates[i][0] });
 		anchor.append(list_duplicates[i][0]);
 		td_title.append(anchor);
-		tr.append(td_empty);
 		tr.append(td_title);
 		table.append(tr);
 		for (var j = 0; j < list_duplicates[i].length; j++)

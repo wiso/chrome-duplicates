@@ -1,0 +1,19 @@
+table {
+    background: #f5f5f5;
+    border-collapse: collapse;
+}	
+
+td {
+}
+
+td {
+    padding: 3px;
+    border-bottom: 1px #e5e5e5 solid;
+    height: 2.83ex;
+    white-space: nowrap;
+}
+
+
+tr.url {
+    background-color: #e3e3e3;
+}

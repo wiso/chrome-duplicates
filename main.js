@@ -5,33 +5,49 @@ function dumpBookmarks() {
 	function(bookmarkTreeNodes) {
 	    
 	    list = dumpTreeNodes(bookmarkTreeNodes);
-	    list = find_duplicates(list);
-	    console.log(list);
+	    var list_duplicates = groupby(list);
+	    var nlinks = list_duplicates.length;
 
 	    var table = $("<table>");
-	    for (i = 0; i < list.length; i++)
+	    for (var i = 0; i < list_duplicates.length; i++)
 	    {
 		var tr = $('<tr>');
-		var td_input = $('<td>');
-		var td_label = $('<td>');
-		var anchor = $('<a>', { href: list[i].url });
-		var complete_title = "";
-		for (var iparent = 1; iparent < list[i].parent.length; iparent++) {
-		    complete_title += " < " + list[i].parent[iparent];
-		}
-		complete_title += " < " + list[i].title;
-		anchor.append(complete_title);
-		var input = $('<input />', { type: 'checkbox', id: list[i].id, value: list[i].title });
-		var label = $('<label />', { 'for': list[i].id });
-		label.append(anchor);
-		td_input.append(input);
-		td_label.append(anchor);
-		tr.append(td_input);
-		tr.append(td_label);
-
+		var td_empty = $('<td>');
+		var td_title = $('<td>');
+		var anchor = $('<a>', { href: list_duplicates[i][0] });
+		anchor.append(list_duplicates[i][0]);
+		td_title.append(anchor);
+		tr.append(td_empty);
+		tr.append(td_title);
 		table.append(tr);
+		for (var j = 0; j < list_duplicates[i].length; j++)
+		{
+		    var duplicate = list_duplicates[i][1][j];
+		    var tr = $('<tr>');
+		    var td_input = $('<td>');
+		    var td_title = $('<td>');
+		    var input = $('<input />', { type: 'checkbox', id: duplicate.id, value: duplicate.title, checked: (j != 0) });
+		    td_input.append(input);
+		    var complete_title = "";
+		    for (var iparent = 1; iparent < duplicate.parent.length; iparent++) {
+			complete_title += " < " + duplicate.parent[iparent];
+		    }
+		    td_title.append(complete_title);
+		    tr.append(td_input);
+		    tr.append(td_title);
+		    table.append(tr);
+
+		}
 	    }
-	    $("#bookmarks").append(table);
+	    if (!nlinks) {
+		$("#bookmarks").append("No duplicates found");
+	    }
+	    else
+	    {
+		$("#bookmarks").append("found " + nlinks + " duplicated link" + (nlinks > 1 ? "s" : ""));
+		$("#bookmarks").append(table);
+	    }
+	    
 
 	});
 }
@@ -54,15 +70,14 @@ function groupby(list) {
     d = 0;
     for (var i = 0; i < s.length - 1 ; i++) {
 	if (!d) {
-	    d = {};
-	    d[s[i].url] = [s[i]];
+	    d = [s[i].url, [s[i]]];
 	}
 
 	if (s[i].url == s[i + 1].url) {
-	    d[s[i].url].push(s[i + 1]);
+	    d[1].push(s[i + 1]);
 	}
 	else {
-	    if (d[s[i].url].length > 1) result.push(d);
+	    if (d[1].length > 1) result.push(d);
 	    d = 0;
 	}
     }

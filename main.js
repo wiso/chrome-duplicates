@@ -30,8 +30,9 @@ function dumpBookmarks() {
 		    td_input.append(input);
 		    var complete_title = "";
 		    for (var iparent = 1; iparent < duplicate.parent.length; iparent++) {
-			complete_title += " < " + duplicate.parent[iparent];
+			complete_title += duplicate.parent[iparent] + " > ";
 		    }
+		    complete_title += duplicate.title;
 		    td_title.append(complete_title);
 		    tr.append(td_input);
 		    tr.append(td_title);

@@ -64,6 +64,8 @@ function groupby(list) {
     var s = list;
     s.sort(function(a, b) { if (b.url > a.url) return -1;
 			    if (b.url < a.url) return 1;
+			    if (b.dateAdded > a.dateAdded) return -1;
+			    if (b.dateAdded < a.dateAdded) return 1;
 			    return 0; });
     var result = [];
     d = 0;

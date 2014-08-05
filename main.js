@@ -115,6 +115,11 @@ function dumpNode(bookmarkNode, list, contest) {
 
 document.addEventListener('DOMContentLoaded', function () {
     dumpBookmarks();
+
+    $("#clear").click(function() {
+	$("input[type=checkbox]").removeAttr('checked');
+    });
+
     $("#delete").click(function() {
 	var selected = [];
 	$($("input[type=checkbox]:checked")).each(function() {

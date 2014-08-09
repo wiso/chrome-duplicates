@@ -19,7 +19,7 @@
 
     },
     "options_page": "popup.html",
-    "offline_enables": true,
+    "offline_enabled": true,
     
     "content_security_policy": "script-src 'self' https://ajax.googleapis.com; object-src 'self'"
 }

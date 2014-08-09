@@ -12,12 +12,12 @@
    sodipodi:docname="icon.svg"
    height="128"
    width="128"
-   inkscape:version="0.48.4 r9939"
+   inkscape:version="0.48.5 r10040"
    version="1.1"
    id="svg2"
-   inkscape:export-filename="/home/turra/chrome-duplicates/icon.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90">
+   inkscape:export-filename="/home/turra/chrome-duplicates/icon48.png"
+   inkscape:export-xdpi="33.75"
+   inkscape:export-ydpi="33.75">
   <metadata
      id="metadata8">
     <rdf:RDF>
@@ -108,13 +108,6 @@
      inkscape:window-y="27"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg2" />
-  <rect
-     style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
-     id="rect2987"
-     width="96"
-     height="96"
-     x="16"
-     y="16" />
   <g
      id="g4138"
      transform="matrix(1.2174138,0,0,1.2174138,-14.725653,-14.052174)">

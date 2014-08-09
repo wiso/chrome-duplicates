@@ -1,19 +1,25 @@
 {
-  "name": "My Bookmarks",
-  "version": "1.1",
-  "description": "A browser action with a popup dump of all bookmarks, including search, add, edit and delete.",
-  "permissions": [
-      "bookmarks",
-      "tabs"
-  ],
-  "browser_action": {
-      "default_title": "My Bookmarks",
-      "default_icon": "icon.png",
-      "default_popup": "popup.html"
-  },
-  "manifest_version": 2,
+    "manifest_version": 2,
+    "name": "Bookmark Cleaner",
+    "version": "0.0.1",
+    "description": "A browser extension to clean your bookmarks",
+    "icons": { "16": "icon16.png", 
+	       "48": "icon48.png",
+	       "128": "icon128.png"},
+    "author": "Ruggero Turra",
+
+    "permissions": [
+	"bookmarks",
+	"tabs"
+    ],
+    "browser_action": {
+	"default_title": "Bookmark Clearner",
+	"default_icon": "icon128.png",
+	"default_popup": "popup.html"
+
+    },
     "options_page": "popup.html",
-
-
-  "content_security_policy": "script-src 'self' https://ajax.googleapis.com; object-src 'self'"
+    "offline_enables": true,
+    
+    "content_security_policy": "script-src 'self' https://ajax.googleapis.com; object-src 'self'"
 }

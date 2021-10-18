@@ -9,8 +9,7 @@
     "author": "Ruggero Turra",
 
     "permissions": [
-	"bookmarks",
-	"tabs"
+	"bookmarks"
     ],
     "browser_action": {
 	"default_title": "Bookmark Clearner",

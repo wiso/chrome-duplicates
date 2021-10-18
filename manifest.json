@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "Bookmark Cleaner",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "A browser extension to clean your bookmarks",
     "icons": { "16": "icon16.png", 
 	       "48": "icon48.png",

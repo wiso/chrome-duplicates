@@ -7,7 +7,12 @@
   <link rel="icon" href="icon48.png">
   <link rel="stylesheet" href="style.css">
   <script src="duplicates.js"></script>
+  <script src="folders.js"></script>
+  <script src="links.js"></script>
   <script src="main.js"></script>
+  <script src="tab-duplicates.js"></script>
+  <script src="tab-folders.js"></script>
+  <script src="tab-links.js"></script>
 </head>
 <body>
   <header class="topbar">
@@ -15,14 +20,20 @@
       <img src="icon48.png" alt="" class="logo">
       <div class="heading">
         <h1>Bookmark Cleaner</h1>
-        <p id="summary" class="summary">Looking for duplicates…</p>
+        <p id="summary" class="summary">Loading your bookmarks…</p>
       </div>
-      <input type="search" id="filter" placeholder="Filter by title, URL or folder" aria-label="Filter duplicates">
+      <input type="search" id="filter" placeholder="Filter by title, URL or folder" aria-label="Filter the list">
     </div>
+    <nav class="tabs" role="tablist" aria-label="Cleanup tools">
+      <button role="tab" id="tab-duplicates" aria-controls="bookmarks">Duplicates <span class="count"></span></button>
+      <button role="tab" id="tab-empty" aria-controls="bookmarks">Empty folders <span class="count"></span></button>
+      <button role="tab" id="tab-samename" aria-controls="bookmarks">Same-name folders <span class="count"></span></button>
+      <button role="tab" id="tab-links" aria-controls="bookmarks">Broken links <span class="count"></span></button>
+    </nav>
   </header>
 
   <main>
-    <label class="switch">
+    <label class="switch" id="smart">
       <input type="checkbox" id="normalize" role="switch">
       <span class="switch-track" aria-hidden="true"></span>
       <span class="switch-text">
@@ -31,16 +42,14 @@
       </span>
     </label>
 
-    <div id="bookmarks"></div>
+    <div id="bookmarks" role="tabpanel"></div>
   </main>
 
   <footer class="actionbar" id="actionbar" hidden>
     <div class="actionbar-inner">
       <span id="selection" class="selection"></span>
       <span class="spacer"></span>
-      <button id="suggested" class="button">Select suggested</button>
-      <button id="clear" class="button">Deselect all</button>
-      <button id="delete" class="button danger" disabled>Delete</button>
+      <span id="actions" class="actions"></span>
     </div>
   </footer>
 

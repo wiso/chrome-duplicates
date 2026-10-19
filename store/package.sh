@@ -6,6 +6,7 @@ cd "$(dirname "$0")/.."
 version=$(node -p 'require("./manifest.json").version')
 out="store/bookmark-cleaner-$version.zip"
 rm -f "$out"
-zip -q -X "$out" manifest.json background.js duplicates.js main.html main.js style.css \
+zip -q -X "$out" manifest.json background.js duplicates.js folders.js links.js \
+    main.html main.js tab-duplicates.js tab-folders.js tab-links.js style.css \
     icon16.png icon48.png icon128.png
 echo "$out"

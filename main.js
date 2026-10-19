@@ -1,7 +1,6 @@
 var list = []
 
 function dumpBookmarks() {
-    $("#bookmarks").empty();
     var bookmarkTreeNodes = chrome.bookmarks.getTree(
 	function(bookmarkTreeNodes) {
 	    
@@ -9,6 +8,9 @@ function dumpBookmarks() {
 	    var list_duplicates = groupby(list);
 	    var nlinks = list_duplicates.length;
 
+	    // clear here and not before getTree, so that overlapping refreshes
+	    // do not append their results twice
+	    $("#bookmarks").empty();
 	    var table = $("<table>");
 	    for (var i = 0; i < nlinks; i++)
 	    {

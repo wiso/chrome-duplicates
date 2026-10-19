@@ -11,11 +11,15 @@
 </p>
 
 <p align="center">
-  🌐 <a href="https://wiso.github.io/chrome-duplicates/"><b>wiso.github.io/chrome-duplicates</b></a>
+  <a href="https://chromewebstore.google.com/detail/bookmark-cleaner/apmbebpbnhlmonbpggbaljkinnfgpmki"><b>➕ Add to Chrome — free on the Chrome Web Store</b></a>
+  &nbsp;·&nbsp;
+  🌐 <a href="https://wiso.github.io/chrome-duplicates/">wiso.github.io/chrome-duplicates</a>
 </p>
 
 <p align="center">
   <a href="https://github.com/wiso/chrome-duplicates/actions/workflows/ci.yml"><img src="https://github.com/wiso/chrome-duplicates/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://chromewebstore.google.com/detail/bookmark-cleaner/apmbebpbnhlmonbpggbaljkinnfgpmki"><img src="https://img.shields.io/chrome-web-store/v/apmbebpbnhlmonbpggbaljkinnfgpmki?label=Chrome%20Web%20Store" alt="Chrome Web Store version"></a>
+  <a href="https://chromewebstore.google.com/detail/bookmark-cleaner/apmbebpbnhlmonbpggbaljkinnfgpmki"><img src="https://img.shields.io/chrome-web-store/users/apmbebpbnhlmonbpggbaljkinnfgpmki" alt="Chrome Web Store users"></a>
   <img src="https://img.shields.io/badge/Manifest-V3-blue" alt="Manifest V3">
   <img src="https://img.shields.io/badge/network%20access-none-brightgreen" alt="No network access">
   <img src="https://img.shields.io/badge/dependencies-none-brightgreen" alt="No dependencies">
@@ -66,10 +70,13 @@ your other devices.
 
 ## Install
 
-Bookmark Cleaner requires Chrome 104 or later; it should also work in other
-Chromium-based browsers such as Edge and Brave.
+**[Install Bookmark Cleaner from the Chrome Web Store](https://chromewebstore.google.com/detail/bookmark-cleaner/apmbebpbnhlmonbpggbaljkinnfgpmki)** — one click,
+with automatic updates.
 
-To install it from source:
+It requires Chrome 104 or later; it should also work in other Chromium-based
+browsers such as Edge and Brave.
+
+To install the development version from source:
 
 1. Download this repository (*Code → Download ZIP*) and unzip it.
 2. Open `chrome://extensions` and switch on **Developer mode**.

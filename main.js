@@ -120,7 +120,10 @@ function renderGroup(group) {
             id: "bookmark-" + bookmark.id,
             onchange: function() { toggle(group, bookmark, checkbox); }
         });
-        var path = bookmark.path.length ? element("span", { className: "path", textContent: bookmark.path.join(" › ") }) : null;
+        // the label gives the name (folder and title), the tag the state
+        checkbox.setAttribute("aria-describedby", "tag-" + bookmark.id);
+        var pathText = bookmark.path.join(" › ");
+        var path = pathText ? element("span", { className: "path", textContent: pathText, title: pathText }) : null;
         var label = element("label", { htmlFor: checkbox.id, className: "copy-text" }, [
             path,
             element("span", { className: "copy-title", textContent: bookmark.title || bookmark.url, title: bookmark.title }),
@@ -130,7 +133,7 @@ function renderGroup(group) {
             checkbox,
             label,
             element("span", { className: "date", textContent: formatDate(bookmark.dateAdded), title: "Date added" }),
-            element("span", { className: "tag" }),
+            element("span", { className: "tag", id: "tag-" + bookmark.id }),
             element("button", {
                 className: "button small keep-only",
                 textContent: "Keep only this",
@@ -213,7 +216,6 @@ function updateSelection() {
     rows.forEach(function(item, id) {
         var deleting = selected.has(id);
         item.checkbox.checked = deleting;
-        item.checkbox.setAttribute("aria-label", deleting ? "Selected for deletion" : "Kept");
         item.row.classList.toggle("deleting", deleting);
         item.row.querySelector(".tag").textContent = deleting ? "Delete" : "Keep";
     });

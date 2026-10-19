@@ -13,11 +13,14 @@
 <p align="center">
   <a href="https://github.com/wiso/chrome-duplicates/actions/workflows/ci.yml"><img src="https://github.com/wiso/chrome-duplicates/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <img src="https://img.shields.io/badge/Manifest-V3-blue" alt="Manifest V3">
-  <img src="https://img.shields.io/badge/permissions-bookmarks%20only-brightgreen" alt="Only the bookmarks permission">
+  <img src="https://img.shields.io/badge/network%20access-none-brightgreen" alt="No network access">
   <img src="https://img.shields.io/badge/dependencies-none-brightgreen" alt="No dependencies">
 </p>
 
-![Bookmark Cleaner showing duplicated bookmarks grouped by URL](screenshot1.png)
+<p align="center">
+  <img src="screenshot1.png" alt="Bookmark Cleaner showing duplicated bookmarks grouped by link" width="49%">
+  <img src="screenshot-dark.png" alt="The same page in dark mode" width="49%">
+</p>
 
 ## Why?
 
@@ -30,34 +33,38 @@ your other devices.
 ## Features
 
 - 🔍 **Finds every duplicate** across all your folders and shows exactly
-  where each copy lives (`Bookmarks bar > News > …`).
+  where each copy lives (`Bookmarks bar › News`) and when you saved it.
 - 🧠 **Smart matching** (optional): `http://www.site.com/page/`,
   `https://site.com/page#top` and `https://site.com/page?utm_source=newsletter`
   are recognized as the same page.
 - ✅ **Sensible defaults**: the oldest copy is kept, the others are
-  pre-selected. Change the selection with a click.
+  pre-selected. Change the selection with a click, or press **Keep only
+  this** on the copy you prefer. Every copy is clearly marked *Keep* or
+  *Delete*.
+- 🔎 **Filter** by title, URL or folder to go through large collections.
 - 🛡️ **You can't lose a bookmark**: at least one copy of each link is always
   kept, even if things change while you are deciding.
 - ↩️ **Undo**: changed your mind? One click puts every deleted bookmark back,
   in its original folder and position.
 - 🔄 **Always up to date**: the list refreshes by itself when your bookmarks
   change, without losing your selection.
+- 🌗 **Looks at home**: clean card layout with site icons, light and dark
+  mode following your system.
 - 🔒 **Private by design**: no network access, no tracking, no analytics. It
-  asks for one permission only — your bookmarks — and everything stays on
-  your computer.
+  only reads your bookmarks and the site icons already cached by the
+  browser, and everything stays on your computer.
 - 🪶 **Lightweight**: a few kilobytes of plain JavaScript, no frameworks.
 
 ## How to use it
 
 1. Click the Bookmark Cleaner icon in the toolbar.
-2. Review the duplicates, grouped by link. Click a title to (de)select it,
-   or click the link to open it in a new tab.
-3. Press **Delete selected duplicates**, confirm, done. Press **Undo** if you
-   need it.
+2. Review the duplicates, grouped by link. Click a copy to switch it
+   between *Keep* and *Delete*, or click the link to open it in a new tab.
+3. Press **Delete**, confirm, done. Press **Undo** if you need it.
 
 ## Install
 
-Bookmark Cleaner requires Chrome 90 or later; it should also work in other
+Bookmark Cleaner requires Chrome 104 or later; it should also work in other
 Chromium-based browsers such as Edge and Brave.
 
 To install it from source:

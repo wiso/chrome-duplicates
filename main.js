@@ -8,13 +8,16 @@ function dumpBookmarks() {
 	    var list_duplicates = groupby(list);
 	    var nlinks = list_duplicates.length;
 
+	    // clear here and not before getTree, so that overlapping refreshes
+	    // do not append their results twice
+	    $("#bookmarks").empty();
 	    var table = $("<table>");
 	    for (var i = 0; i < nlinks; i++)
 	    {
 		var tr = $('<tr>').addClass('url');
 		var td_title = $('<td>').attr("colspan", 2);
 		var anchor = $('<a>', { href: list_duplicates[i][0] });
-		anchor.append(list_duplicates[i][0]);
+		anchor.text(list_duplicates[i][0]);
 		td_title.append(anchor);
 		tr.append(td_title);
 		table.append(tr);
@@ -31,7 +34,7 @@ function dumpBookmarks() {
 			complete_title += duplicate.parent[iparent] + " > ";
 		    }
 		    complete_title += duplicate.title;
-		    td_title.append(complete_title);
+		    td_title.text(complete_title);
 		    tr.append(td_input);
 		    tr.append(td_title);
 		    table.append(tr);
@@ -68,20 +71,17 @@ function groupby(list) {
 			    if (b.dateAdded < a.dateAdded) return 1;
 			    return 0; });
     var result = [];
-    d = 0;
-    for (var i = 0; i < s.length - 1 ; i++) {
-	if (!d) {
-	    d = [s[i].url, [s[i]]];
-	}
-
-	if (s[i].url == s[i + 1].url) {
-	    d[1].push(s[i + 1]);
+    var d = 0;
+    for (var i = 0; i < s.length; i++) {
+	if (d && s[i].url == d[0]) {
+	    d[1].push(s[i]);
 	}
 	else {
-	    if (d[1].length > 1) result.push(d);
-	    d = 0;
+	    if (d && d[1].length > 1) result.push(d);
+	    d = [s[i].url, [s[i]]];
 	}
     }
+    if (d && d[1].length > 1) result.push(d);
     return result;
 }
     
@@ -123,14 +123,15 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     $("#delete").click(function() {
-	var selected = [];
-	$($("input[type=checkbox]:checked")).each(function() {
+	var removals = [];
+	$("input[type=checkbox]:checked").each(function() {
 	    var id = $(this).attr('id');
 	    console.log("removing " + id);
-	    chrome.bookmarks.remove(id);
+	    removals.push(chrome.bookmarks.remove(id).catch(function(e) {
+		console.error("cannot remove " + id + ": " + e.message);
+	    }));
 	});
-	console.log("clicked");
-	console.log(selected);
-	console.log(list);
+	// reload the list, so that removed bookmarks are not shown anymore
+	Promise.all(removals).then(dumpBookmarks);
     });
 });

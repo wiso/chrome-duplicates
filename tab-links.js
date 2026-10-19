@@ -103,7 +103,7 @@ TABS.links = (function() {
                     element("span", { className: "copy-title", textContent: b.title || b.url, title: b.title }),
                     element("a", { className: "variant", href: b.url, target: "_blank", rel: "noopener", textContent: b.url, title: "Open in a new tab" })
                 ], function(checked) { return checked ? "Delete" : "Keep"; },
-                element("span", { className: "status", textContent: result.status ? "HTTP " + result.status : result.error == "timeout" ? "No answer" : "Unreachable" })));
+                element("span", { className: "status", textContent: result.status ? "HTTP " + result.status : { timeout: "No answer", inconclusive: "Inconclusive" }[result.error] || "Unreachable" })));
             });
             sections.push(element("section", { className: "group" }, [
                 element("header", { className: "group-header" }, [
@@ -210,11 +210,21 @@ TABS.links = (function() {
             "The bookmarks with a broken link you selected are deleted. You can undo right after.", "Delete");
         if (!ok) return;
         await runOperation(async function() {
+            // a bookmark may have changed since the check (e.g. its URL was
+            // edited): delete only the ones still pointing to the checked URL,
+            // and keep their current data for undo
+            var current = new Map(flattenTree(await chrome.bookmarks.getTree()).map(function(b) { return [b.id, b]; }));
             var byId = new Map();
-            ids.forEach(function(id) { if (results.has(id)) byId.set(id, results.get(id).bookmark); });
+            ids.forEach(function(id) {
+                if (results.has(id) && current.has(id) && current.get(id).url == results.get(id).bookmark.url) {
+                    byId.set(id, current.get(id));
+                }
+            });
             var result = await removeBookmarks(Array.from(byId.keys()), byId);
             var message = "Deleted " + plural(result.removed.length, "bookmark") + ".";
             if (result.failed) message += " " + result.failed + " could not be deleted.";
+            var changed = ids.length - byId.size;
+            if (changed) message += " " + changed + " kept because they changed after the check.";
             return {
                 message: message,
                 undo: result.removed.length ? function() { return restoreBookmarks(result.removed); } : null

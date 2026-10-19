@@ -5,11 +5,12 @@
 // Classify the result of checkLink:
 // - "notfound": the server says the page does not exist (404, 410)
 // - "unreachable": the server cannot be reached (e.g. the domain is gone)
-// - "error": server error or no answer in time, maybe temporary
+// - "error": server error, no answer in time or contradictory answers,
+//   maybe temporary
 // - "ok": anything else, including pages that need a login (401, 403) or
 //   refuse automated requests (429)
 function classifyLink(result) {
-    if (result.error) return result.error == "timeout" ? "error" : "unreachable";
+    if (result.error) return result.error == "network" ? "unreachable" : "error";
     if (result.status == 404 || result.status == 410) return "notfound";
     if (result.status >= 500) return "error";
     return "ok";
@@ -27,9 +28,11 @@ function linksToCheck(bookmarks) {
     return urls;
 }
 
-// Request url and return { status } or { error: "timeout" | "network" }.
-// Some servers do not support HEAD: if it fails with an HTTP error, GET is
-// tried. Only the headers are read, the body is not downloaded.
+// Request url and return { status } or { error }, where error is "timeout",
+// "network" or "inconclusive". Some servers do not support HEAD: if it fails
+// with an HTTP error, GET is tried and its result is the answer; if GET does
+// not answer, the result is inconclusive (never a definitive 404).
+// Only the headers are read, the body is not downloaded.
 async function checkLink(url, fetchFunction, timeout) {
     async function attempt(method) {
         var controller = new AbortController();
@@ -51,7 +54,7 @@ async function checkLink(url, fetchFunction, timeout) {
     var result = await attempt("HEAD");
     if (result.status >= 400) {
         var get = await attempt("GET");
-        if (!get.error) result = get;
+        result = get.error ? { error: get.error == "network" ? "inconclusive" : get.error } : get;
     }
     return result;
 }

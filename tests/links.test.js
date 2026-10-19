@@ -11,6 +11,7 @@ test("classifyLink", () => {
     assert.strictEqual(classifyLink({ status: 503 }), "error");
     assert.strictEqual(classifyLink({ error: "timeout" }), "error");
     assert.strictEqual(classifyLink({ error: "network" }), "unreachable");
+    assert.strictEqual(classifyLink({ error: "inconclusive" }), "error");
 });
 
 test("linksToCheck keeps http(s) URLs once", () => {
@@ -57,6 +58,13 @@ test("checkLink retries with GET when HEAD gives an HTTP error", async () => {
     assert.deepStrictEqual(f.calls, ["HEAD", "GET"]);
     const g = fakeFetch({ HEAD: 404, GET: 404 });
     assert.deepStrictEqual(await checkLink("u", g.fetch, 1000), { status: 404 });
+});
+
+test("checkLink is inconclusive when the GET retry does not answer", async () => {
+    const f = fakeFetch({ HEAD: 404, GET: "hang" });
+    assert.deepStrictEqual(await checkLink("u", f.fetch, 20), { error: "timeout" });
+    const g = fakeFetch({ HEAD: 405, GET: new TypeError("Failed to fetch") });
+    assert.deepStrictEqual(await checkLink("u", g.fetch, 1000), { error: "inconclusive" });
 });
 
 test("checkLink reports network errors and timeouts", async () => {

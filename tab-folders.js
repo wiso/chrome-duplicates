@@ -34,6 +34,57 @@ function folderIcon() {
     return element("span", { className: "folder-icon", textContent: "📁", ariaHidden: "true" });
 }
 
+// Log of the changes made to the tree, to undo them exactly: each entry
+// records where a folder or item was just before it was removed or moved,
+// read from the live tree. Undo replays the log backwards.
+function ChangeLog() {
+    this.entries = [];
+}
+
+// remove an empty folder; fails (and logs nothing) if it is not empty
+ChangeLog.prototype.removeFolder = async function(id) {
+    var node = (await chrome.bookmarks.get(id))[0];
+    await chrome.bookmarks.remove(id);
+    this.entries.push({ type: "remove", id: id, parentId: node.parentId, index: node.index, title: node.title });
+};
+
+ChangeLog.prototype.move = async function(id, parentId) {
+    var node = (await chrome.bookmarks.get(id))[0];
+    await chrome.bookmarks.move(id, { parentId: parentId });
+    this.entries.push({ type: "move", id: id, parentId: node.parentId, index: node.index });
+};
+
+// Undo the logged changes; return the number of changes not undone.
+ChangeLog.prototype.undo = async function() {
+    // ids of the folders recreated by the undo, by their old id
+    var newIds = new Map();
+    var current = function(id) { return newIds.get(id) || id; };
+    var failed = 0;
+    for (var i = this.entries.length - 1; i >= 0; i--) {
+        var entry = this.entries[i];
+        try {
+            if (entry.type == "remove") {
+                var created = await chrome.bookmarks.create({ parentId: current(entry.parentId), index: entry.index, title: entry.title });
+                newIds.set(entry.id, created.id);
+            }
+            else {
+                await chrome.bookmarks.move(current(entry.id), { parentId: current(entry.parentId), index: entry.index });
+            }
+        } catch (e) {
+            console.error("cannot undo " + entry.type + " of " + entry.id + ": " + e.message);
+            failed++;
+        }
+    }
+    return failed;
+};
+
+// ids of a folder and its subfolders, children first
+function foldersBottomUp(node) {
+    return (node.children || []).filter(function(c) { return !c.url; })
+        .reduce(function(ids, child) { return ids.concat(foldersBottomUp(child)); }, [])
+        .concat([node.id]);
+}
+
 TABS.empty = (function() {
     var folders = [];
     var selected = new Set();
@@ -104,14 +155,6 @@ TABS.empty = (function() {
         };
     }
 
-    // recreate a folder and its empty subfolders
-    async function restoreFolder(parentId, index, snapshot) {
-        var created = await chrome.bookmarks.create({ parentId: parentId, index: index, title: snapshot.title });
-        for (var i = 0; i < snapshot.children.length; i++) {
-            await restoreFolder(created.id, i, snapshot.children[i]);
-        }
-    }
-
     async function deleteSelected() {
         var requested = new Set(selected);
         if (!requested.size || busy) return;
@@ -119,37 +162,29 @@ TABS.empty = (function() {
             "Only folders without bookmarks are deleted, and you can undo right after.", "Delete");
         if (!ok) return;
         await runOperation(async function() {
-            // delete only the folders that are still empty now
-            var fresh = findEmptyFolders(await chrome.bookmarks.getTree()).filter(function(f) { return requested.has(f.id); });
-            var removed = [];
-            var failed = 0;
-            for (var folder of fresh) {
+            var log = new ChangeLog();
+            var deleted = 0;
+            var kept = 0;
+            for (var id of requested) {
+                // remove the subfolders first, one by one: chrome.bookmarks.remove
+                // refuses a folder that is not empty, so a bookmark added
+                // meanwhile (e.g. by sync) is never deleted
                 try {
-                    await chrome.bookmarks.removeTree(folder.id);
-                    removed.push(folder);
+                    var node = (await chrome.bookmarks.getSubTree(id))[0];
+                    for (var folderId of foldersBottomUp(node)) await log.removeFolder(folderId);
+                    deleted++;
                 } catch (e) {
-                    console.error("cannot remove folder " + folder.id + ": " + e.message);
-                    failed++;
+                    console.error("cannot remove folder " + id + ": " + e.message);
+                    kept++;
                 }
             }
-            var message = "Deleted " + plural(removed.length, "empty folder") + ".";
-            if (failed) message += " " + failed + " could not be deleted.";
-            var skipped = requested.size - fresh.length;
-            if (skipped) message += " " + skipped + " kept because they are not empty anymore.";
+            var message = "Deleted " + plural(deleted, "empty folder") + ".";
+            if (kept) message += " " + kept + " kept because they are not empty anymore.";
             return {
                 message: message,
-                undo: removed.length ? async function() {
-                    var notRestored = 0;
-                    for (var f of restoreOrder(removed)) {
-                        try {
-                            await restoreFolder(f.parentId, f.index, f.snapshot);
-                        } catch (e) {
-                            console.error("cannot restore folder " + f.title + ": " + e.message);
-                            notRestored++;
-                        }
-                    }
-                    return "Restored " + plural(removed.length - notRestored, "folder") + "."
-                        + (notRestored ? " " + notRestored + " could not be restored." : "");
+                undo: log.entries.length ? async function() {
+                    var failed = await log.undo();
+                    return "Restored the deleted folders." + (failed ? " " + plural(failed, "folder") + " could not be restored." : "");
                 } : null
             };
         });
@@ -177,7 +212,8 @@ TABS.samename = (function() {
     }
 
     function renderGroup(group) {
-        var id = "merge-" + group.key.replace(/[^a-z0-9]/gi, "_");
+        // the oldest folder id is unique, the name may not be a valid id
+        var id = "merge-" + group.folders[0].id;
         var checkbox = element("input", { type: "checkbox", id: id, checked: selected.has(group.key) });
         var section;
         checkbox.addEventListener("change", function() {
@@ -251,22 +287,18 @@ TABS.samename = (function() {
         if (!ok) return;
         await runOperation(async function() {
             var fresh = findSameNameFolders(await chrome.bookmarks.getTree()).filter(function(g) { return requested.has(g.key); });
-            // to undo: items moved (with their original folder and index)
-            // and folders removed
-            var moves = [];
-            var removedFolders = [];
+            // groups can be nested (a merged folder may contain another
+            // group): the log records the live position before each change,
+            // so that undo restores the exact hierarchy
+            var log = new ChangeLog();
             var failed = 0;
             for (var group of fresh) {
                 var target = group.folders[0];
                 for (var folder of group.folders.slice(1)) {
                     try {
                         var children = await chrome.bookmarks.getChildren(folder.id);
-                        for (var child of children) {
-                            await chrome.bookmarks.move(child.id, { parentId: target.id });
-                            moves.push({ id: child.id, parentId: folder.id, index: child.index });
-                        }
-                        await chrome.bookmarks.remove(folder.id);
-                        removedFolders.push({ id: folder.id, parentId: group.parentId, index: folder.index, title: folder.title });
+                        for (var child of children) await log.move(child.id, target.id);
+                        await log.removeFolder(folder.id);
                     } catch (e) {
                         console.error("cannot merge folder " + folder.id + ": " + e.message);
                         failed++;
@@ -277,32 +309,12 @@ TABS.samename = (function() {
             if (failed) message += " " + plural(failed, "folder") + " could not be merged.";
             return {
                 message: message,
-                undo: removedFolders.length || moves.length ? function() { return unmerge(moves, removedFolders); } : null
+                undo: log.entries.length ? async function() {
+                    var notUndone = await log.undo();
+                    return "Restored the merged folders." + (notUndone ? " " + plural(notUndone, "change") + " could not be undone." : "");
+                } : null
             };
         });
-    }
-
-    async function unmerge(moves, removedFolders) {
-        var newIds = new Map();
-        var failed = 0;
-        for (var folder of restoreOrder(removedFolders)) {
-            try {
-                var created = await chrome.bookmarks.create({ parentId: folder.parentId, index: folder.index, title: folder.title });
-                newIds.set(folder.id, created.id);
-            } catch (e) {
-                console.error("cannot restore folder " + folder.title + ": " + e.message);
-            }
-        }
-        for (var move of restoreOrder(moves)) {
-            try {
-                await chrome.bookmarks.move(move.id, { parentId: newIds.get(move.parentId) || move.parentId, index: move.index });
-            } catch (e) {
-                console.error("cannot move back " + move.id + ": " + e.message);
-                failed++;
-            }
-        }
-        return "Restored " + plural(removedFolders.length, "folder") + "."
-            + (failed ? " " + plural(failed, "item") + " could not be moved back." : "");
     }
 
     return { update: update, count: count, summary: summary, render: render, actions: actions };

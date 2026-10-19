@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  <img src="screenshot1.png" alt="Bookmark Cleaner showing duplicated bookmarks grouped by link" width="49%">
+  <img src="screenshot-light.png" alt="Bookmark Cleaner showing duplicated bookmarks grouped by link" width="49%">
   <img src="screenshot-dark.png" alt="The same page in dark mode" width="49%">
 </p>
 

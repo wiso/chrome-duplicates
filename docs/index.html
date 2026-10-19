@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Bookmark Cleaner – Find and remove duplicate bookmarks in Chrome</title>
-  <meta name="description" content="Free, open-source Chrome extension that finds and removes duplicate bookmarks across all your folders. Smart URL matching, always keeps one copy, one-click undo. No tracking.">
+  <meta name="description" content="Free, open-source Chrome extension that finds and removes duplicate bookmarks, empty folders and broken links. Smart URL matching, always keeps one copy, one-click undo. No tracking.">
   <link rel="canonical" href="https://wiso.github.io/chrome-duplicates/">
   <link rel="icon" href="icon48.png">
   <meta name="theme-color" content="#2c5cc5">
@@ -24,10 +24,10 @@
     "@type": "SoftwareApplication",
     "name": "Bookmark Cleaner",
     "alternateName": "Bookmark Cleaner – Remove Duplicate Bookmarks",
-    "description": "Chrome extension that finds and removes duplicate bookmarks, with smart URL matching and undo.",
+    "description": "Chrome extension that finds and removes duplicate bookmarks, empty folders and broken links, with smart URL matching and undo.",
     "applicationCategory": "BrowserApplication",
     "operatingSystem": "Google Chrome, Chromium-based browsers",
-    "softwareVersion": "0.2.0",
+    "softwareVersion": "0.3.0",
     "url": "https://wiso.github.io/chrome-duplicates/",
     "downloadUrl": "https://chromewebstore.google.com/detail/bookmark-cleaner/apmbebpbnhlmonbpggbaljkinnfgpmki",
     "installUrl": "https://chromewebstore.google.com/detail/bookmark-cleaner/apmbebpbnhlmonbpggbaljkinnfgpmki",
@@ -60,8 +60,13 @@
       },
       {
         "@type": "Question",
+        "name": "Can it also remove empty folders and broken links?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Besides duplicates, Bookmark Cleaner finds folders without bookmarks, merges folders with the same name in the same place, and, if you allow it, checks every bookmarked page to find the ones that do not exist anymore. Every change asks for confirmation and can be undone." }
+      },
+      {
+        "@type": "Question",
         "name": "Does Bookmark Cleaner send my bookmarks anywhere?",
-        "acceptedAnswer": { "@type": "Answer", "text": "No. It has no network access, no analytics and no tracking. It only reads your bookmarks and the site icons already cached by the browser, and everything stays on your computer." }
+        "acceptedAnswer": { "@type": "Answer", "text": "No. It has no analytics and no tracking, and it never sends your bookmarks anywhere. It contacts the bookmarked websites only if you start the optional broken-link check, which asks for your permission first and only checks whether each page still exists." }
       },
       {
         "@type": "Question",
@@ -132,7 +137,9 @@
         <div class="card"><h3>✅ Sensible defaults</h3><p>The oldest copy is kept and the others are pre-selected. Change it with a click or press “Keep only this”.</p></div>
         <div class="card"><h3>🛡️ You can’t lose a bookmark</h3><p>At least one copy of each link is always kept, even if your bookmarks change while you decide.</p></div>
         <div class="card"><h3>↩️ One-click undo</h3><p>Deleted bookmarks go back to their original folder and position.</p></div>
-        <div class="card"><h3>🔒 Private by design</h3><p>No network access, no analytics, no tracking. Your bookmarks never leave your computer.</p></div>
+        <div class="card"><h3>📁 Empty and same-name folders</h3><p>Removes folders without bookmarks and merges folders with the same name into one.</p></div>
+        <div class="card"><h3>🔗 Broken links (opt-in)</h3><p>Checks every bookmarked page and lists the ones that do not exist anymore. It runs only when you ask, after your permission.</p></div>
+        <div class="card"><h3>🔒 Private by design</h3><p>No analytics, no tracking. Your bookmarks never leave your computer.</p></div>
       </div>
     </section>
 
@@ -165,8 +172,10 @@
         <p>No. Bookmark Cleaner always keeps at least one copy of each link, asks for confirmation before deleting and offers an Undo button that puts the deleted bookmarks back in their original folder and position.</p></details>
       <details><summary>Does it find bookmarks that differ only slightly?</summary>
         <p>Yes. With smart matching on, links that differ only in http/https, www., a trailing slash, a #fragment or tracking parameters such as utm_source are treated as duplicates.</p></details>
+      <details><summary>Can it also remove empty folders and broken links?</summary>
+        <p>Yes. Besides duplicates, Bookmark Cleaner finds folders without bookmarks, merges folders with the same name in the same place, and, if you allow it, checks every bookmarked page to find the ones that do not exist anymore. Every change asks for confirmation and can be undone.</p></details>
       <details><summary>Does Bookmark Cleaner send my bookmarks anywhere?</summary>
-        <p>No. It has no network access, no analytics and no tracking. It only reads your bookmarks and the site icons already cached by the browser, and everything stays on your computer.</p></details>
+        <p>No. It has no analytics and no tracking, and it never sends your bookmarks anywhere. It contacts the bookmarked websites only if you start the optional broken-link check, which asks for your permission first and only checks whether each page still exists.</p></details>
       <details><summary>Does it work with synced bookmarks and other browsers?</summary>
         <p>It works on all the bookmarks in your Chrome profile, including those synced from other devices. It requires Chrome 104 or later and should also work in other Chromium-based browsers such as Edge and Brave.</p></details>
     </section>

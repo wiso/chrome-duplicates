@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bookmark Cleaner – Find and remove duplicate bookmarks in Chrome</title>
+  <meta name="description" content="Free, open-source Chrome extension that finds and removes duplicate bookmarks across all your folders. Smart URL matching, always keeps one copy, one-click undo. No tracking.">
+  <link rel="canonical" href="https://wiso.github.io/chrome-duplicates/">
+  <link rel="icon" href="icon48.png">
+  <meta name="theme-color" content="#2c5cc5">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Bookmark Cleaner – Find and remove duplicate bookmarks in Chrome">
+  <meta property="og:description" content="Years of bookmarks, zero duplicates. A free, private Chrome extension to clean up duplicated bookmarks safely, with undo.">
+  <meta property="og:url" content="https://wiso.github.io/chrome-duplicates/">
+  <meta property="og:image" content="https://wiso.github.io/chrome-duplicates/social-preview.png">
+  <meta property="og:image:width" content="1280">
+  <meta property="og:image:height" content="640">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Bookmark Cleaner",
+    "description": "Chrome extension that finds and removes duplicate bookmarks, with smart URL matching and undo.",
+    "applicationCategory": "BrowserApplication",
+    "operatingSystem": "Google Chrome, Chromium-based browsers",
+    "softwareVersion": "0.2.0",
+    "url": "https://wiso.github.io/chrome-duplicates/",
+    "downloadUrl": "https://github.com/wiso/chrome-duplicates",
+    "screenshot": "https://wiso.github.io/chrome-duplicates/screenshot.png",
+    "license": "https://opensource.org/licenses/MIT",
+    "author": { "@type": "Person", "name": "Ruggero Turra" },
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How do I remove duplicate bookmarks in Chrome?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Chrome has no built-in way to find duplicate bookmarks. Install Bookmark Cleaner, click its icon in the toolbar and it lists every link saved more than once, grouped by URL, with the extra copies already selected. Press Delete to remove them; you can undo right after." }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I lose a bookmark by mistake?",
+        "acceptedAnswer": { "@type": "Answer", "text": "No. Bookmark Cleaner always keeps at least one copy of each link, asks for confirmation before deleting and offers an Undo button that puts the deleted bookmarks back in their original folder and position." }
+      },
+      {
+        "@type": "Question",
+        "name": "Does it find bookmarks that differ only slightly?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. With smart matching on, links that differ only in http/https, www., a trailing slash, a #fragment or tracking parameters such as utm_source are treated as duplicates." }
+      },
+      {
+        "@type": "Question",
+        "name": "Does Bookmark Cleaner send my bookmarks anywhere?",
+        "acceptedAnswer": { "@type": "Answer", "text": "No. It has no network access, no analytics and no tracking. It only reads your bookmarks and the site icons already cached by the browser, and everything stays on your computer." }
+      },
+      {
+        "@type": "Question",
+        "name": "Does it work with synced bookmarks and other browsers?",
+        "acceptedAnswer": { "@type": "Answer", "text": "It works on all the bookmarks in your Chrome profile, including those synced from other devices. It requires Chrome 104 or later and should also work in other Chromium-based browsers such as Edge and Brave." }
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    :root {
+      --bg: #f4f5f8; --surface: #fff; --border: #e3e5ea; --text: #1f2328; --muted: #5d6470;
+      --accent: #2c5cc5; --accent-soft: #e8effc; --danger: #d43b3b; color-scheme: light;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #16181d; --surface: #20232a; --border: #333842; --text: #e6e8ec; --muted: #a1a7b3;
+              --accent: #7aa2f7; --accent-soft: #263049; color-scheme: dark; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text);
+           font: 17px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    a { color: var(--accent); }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+    header.hero { padding: 72px 0 40px; text-align: center; }
+    .hero img { width: 96px; height: 96px; }
+    h1 { margin: 16px 0 8px; font-size: clamp(32px, 5vw, 48px); line-height: 1.15; }
+    .tagline { margin: 0 auto 28px; max-width: 640px; color: var(--muted); font-size: 20px; }
+    .cta { display: inline-block; padding: 14px 26px; border-radius: 10px; background: var(--accent);
+           color: var(--surface); font-weight: 600; text-decoration: none; }
+    .cta.secondary { margin-left: 8px; background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+    .shot { display: block; width: 100%; height: auto; border: 1px solid var(--border); border-radius: 14px;
+            box-shadow: 0 20px 50px rgba(16, 24, 40, 0.15); }
+    section { padding: 56px 0 8px; }
+    h2 { font-size: 28px; margin: 0 0 24px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+    .card { padding: 20px 22px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; }
+    .card h3 { margin: 0 0 6px; font-size: 18px; }
+    .card p { margin: 0; color: var(--muted); }
+    ol li { margin-bottom: 8px; }
+    details { padding: 16px 20px; margin-bottom: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; }
+    summary { font-weight: 600; cursor: pointer; }
+    details p { margin: 10px 0 0; color: var(--muted); }
+    code { padding: 1px 6px; border-radius: 6px; background: var(--accent-soft); font-size: 0.9em; }
+    footer { margin-top: 64px; padding: 32px 0; border-top: 1px solid var(--border); color: var(--muted); text-align: center; font-size: 15px; }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <img src="icon128.png" alt="Bookmark Cleaner logo" width="96" height="96">
+      <h1>Find and remove duplicate bookmarks in Chrome</h1>
+      <p class="tagline">Bookmark Cleaner is a free, private, open-source extension that finds every bookmark you saved more than once and cleans them up safely — with one-click undo.</p>
+      <a class="cta" href="#install">Get Bookmark Cleaner</a>
+      <a class="cta secondary" href="https://github.com/wiso/chrome-duplicates">View on GitHub</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <img class="shot" src="screenshot.png" width="2000" height="1280"
+         alt="Bookmark Cleaner listing duplicate bookmarks grouped by link, each copy marked Keep or Delete">
+
+    <section id="features">
+      <h2>Why Bookmark Cleaner</h2>
+      <div class="grid">
+        <div class="card"><h3>🔍 Every duplicate, every folder</h3><p>Scans the bookmarks bar, other bookmarks and synced folders, and shows where each copy lives and when you saved it.</p></div>
+        <div class="card"><h3>🧠 Smart URL matching</h3><p>Optionally treats <code>http://www.site.com/page/</code>, <code>https://site.com/page#top</code> and links with <code>utm_*</code> tracking parameters as the same page.</p></div>
+        <div class="card"><h3>✅ Sensible defaults</h3><p>The oldest copy is kept and the others are pre-selected. Change it with a click or press “Keep only this”.</p></div>
+        <div class="card"><h3>🛡️ You can’t lose a bookmark</h3><p>At least one copy of each link is always kept, even if your bookmarks change while you decide.</p></div>
+        <div class="card"><h3>↩️ One-click undo</h3><p>Deleted bookmarks go back to their original folder and position.</p></div>
+        <div class="card"><h3>🔒 Private by design</h3><p>No network access, no analytics, no tracking. Your bookmarks never leave your computer.</p></div>
+      </div>
+    </section>
+
+    <section id="how">
+      <h2>How to remove duplicate bookmarks</h2>
+      <ol>
+        <li>Click the Bookmark Cleaner icon in the Chrome toolbar.</li>
+        <li>Review the duplicates, grouped by link. Click a copy to switch it between <em>Keep</em> and <em>Delete</em>; use the filter to find a site or folder.</li>
+        <li>Press <strong>Delete</strong> and confirm. Changed your mind? Press <strong>Undo</strong>.</li>
+      </ol>
+    </section>
+
+    <section id="install">
+      <h2>Install</h2>
+      <p>Bookmark Cleaner requires Chrome 104 or later and should also work in other Chromium-based browsers such as Edge and Brave.</p>
+      <ol>
+        <li>Download the <a href="https://github.com/wiso/chrome-duplicates/archive/refs/heads/master.zip">latest version</a> and unzip it.</li>
+        <li>Open <code>chrome://extensions</code> and switch on <strong>Developer mode</strong>.</li>
+        <li>Click <strong>Load unpacked</strong> and select the unzipped folder.</li>
+      </ol>
+    </section>
+
+    <section id="faq">
+      <h2>Frequently asked questions</h2>
+      <details open><summary>How do I remove duplicate bookmarks in Chrome?</summary>
+        <p>Chrome has no built-in way to find duplicate bookmarks. Install Bookmark Cleaner, click its icon in the toolbar and it lists every link saved more than once, grouped by URL, with the extra copies already selected. Press Delete to remove them; you can undo right after.</p></details>
+      <details><summary>Can I lose a bookmark by mistake?</summary>
+        <p>No. Bookmark Cleaner always keeps at least one copy of each link, asks for confirmation before deleting and offers an Undo button that puts the deleted bookmarks back in their original folder and position.</p></details>
+      <details><summary>Does it find bookmarks that differ only slightly?</summary>
+        <p>Yes. With smart matching on, links that differ only in http/https, www., a trailing slash, a #fragment or tracking parameters such as utm_source are treated as duplicates.</p></details>
+      <details><summary>Does Bookmark Cleaner send my bookmarks anywhere?</summary>
+        <p>No. It has no network access, no analytics and no tracking. It only reads your bookmarks and the site icons already cached by the browser, and everything stays on your computer.</p></details>
+      <details><summary>Does it work with synced bookmarks and other browsers?</summary>
+        <p>It works on all the bookmarks in your Chrome profile, including those synced from other devices. It requires Chrome 104 or later and should also work in other Chromium-based browsers such as Edge and Brave.</p></details>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      Bookmark Cleaner is open source under the <a href="https://github.com/wiso/chrome-duplicates/blob/master/LICENSE">MIT license</a>. <a href="https://github.com/wiso/chrome-duplicates">Source code, issues and contributions on GitHub</a>.
+    </div>
+  </footer>
+</body>
+</html>

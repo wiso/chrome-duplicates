@@ -5,9 +5,13 @@
 <h1 align="center">Bookmark Cleaner</h1>
 
 <p align="center">
-  <b>Years of bookmarks, zero duplicates — in one click.</b><br>
+  <b>Find and remove duplicate bookmarks in Chrome — in one click.</b><br>
   A tiny, private, open-source Chrome extension that finds every duplicated
   bookmark and lets you clean them up safely.
+</p>
+
+<p align="center">
+  🌐 <a href="https://wiso.github.io/chrome-duplicates/"><b>wiso.github.io/chrome-duplicates</b></a>
 </p>
 
 <p align="center">
@@ -15,6 +19,7 @@
   <img src="https://img.shields.io/badge/Manifest-V3-blue" alt="Manifest V3">
   <img src="https://img.shields.io/badge/network%20access-none-brightgreen" alt="No network access">
   <img src="https://img.shields.io/badge/dependencies-none-brightgreen" alt="No dependencies">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"></a>
 </p>
 
 ![Bookmark Cleaner showing duplicated bookmarks grouped by link, each copy marked Keep or Delete](screenshot.png)
@@ -81,3 +86,7 @@ the Chrome API, and is tested with node:
 ```
 node --test
 ```
+
+## License
+
+[MIT](LICENSE) © Ruggero Turra

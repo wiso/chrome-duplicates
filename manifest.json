@@ -9,6 +9,7 @@
         "128": "icon128.png"
     },
     "author": "Ruggero Turra",
+    "minimum_chrome_version": "90",
     "permissions": [
         "bookmarks"
     ],

@@ -2,26 +2,63 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Bookmark Cleaner</title>
+  <link rel="icon" href="icon48.png">
   <link rel="stylesheet" href="style.css">
   <script src="duplicates.js"></script>
   <script src="main.js"></script>
 </head>
 <body>
-  <h1>List of duplicated bookmarks</h1>
-  <p>
-    <label>
-      <input type="checkbox" id="normalize">
-      Also match URLs that differ only in http/https, "www.", trailing slash, #fragment or tracking parameters
-    </label>
-  </p>
-  <p>
-    <button id="suggested">Select suggested</button>
-    <button id="clear">Deselect all</button>
-    <button id="delete" disabled>Delete selected duplicates</button>
-  </p>
-  <p id="status" role="status"></p>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <img src="icon48.png" alt="" class="logo">
+      <div class="heading">
+        <h1>Bookmark Cleaner</h1>
+        <p id="summary" class="summary">Looking for duplicates…</p>
+      </div>
+      <input type="search" id="filter" placeholder="Filter by title, URL or folder" aria-label="Filter duplicates">
+    </div>
+  </header>
 
-  <div id="bookmarks"></div>
+  <main>
+    <label class="switch">
+      <input type="checkbox" id="normalize" role="switch">
+      <span class="switch-track" aria-hidden="true"></span>
+      <span class="switch-text">
+        <strong>Smart matching</strong>
+        <span class="hint">Also treat as duplicates the URLs that differ only in http/https, "www.", trailing slash, #fragment or tracking parameters</span>
+      </span>
+    </label>
+
+    <div id="bookmarks"></div>
+  </main>
+
+  <footer class="actionbar" id="actionbar" hidden>
+    <div class="actionbar-inner">
+      <span id="selection" class="selection"></span>
+      <span class="spacer"></span>
+      <button id="suggested" class="button">Select suggested</button>
+      <button id="clear" class="button">Deselect all</button>
+      <button id="delete" class="button danger" disabled>Delete</button>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast" role="status" hidden>
+    <span id="toast-message"></span>
+    <button id="toast-undo" class="button link" hidden>Undo</button>
+    <button id="toast-close" class="icon-button" aria-label="Close">&times;</button>
+  </div>
+
+  <dialog id="confirm" aria-labelledby="confirm-title">
+    <form method="dialog">
+      <h2 id="confirm-title"></h2>
+      <p id="confirm-text"></p>
+      <div class="dialog-buttons">
+        <button value="cancel" class="button" autofocus>Cancel</button>
+        <button value="ok" class="button danger" id="confirm-ok">Delete</button>
+      </div>
+    </form>
+  </dialog>
 </body>
 </html>

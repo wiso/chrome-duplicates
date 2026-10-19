@@ -5,10 +5,13 @@ var groups = [];
 // bookmarks get the default selection
 var selected = new Set();
 var shown = new Set();
+// rows of the page by bookmark id, to update them without rendering again
+var rows = new Map();
 // bookmarks removed by the last deletion, to undo it
 var lastRemoved = [];
 // true while a deletion or an undo is running
 var busy = false;
+var loaded = false;
 
 var NORMALIZE_KEY = "normalizeUrls";
 
@@ -32,21 +35,54 @@ function element(tag, properties, children) {
     var el = document.createElement(tag);
     Object.assign(el, properties || {});
     (children || []).forEach(function(child) {
-        el.append(child);
+        if (child !== null) el.append(child);
     });
     return el;
 }
 
-function undoAction() {
-    return lastRemoved.length ? { label: "Undo", run: undo } : null;
+function plural(n, word, words) {
+    return n + " " + (n == 1 ? word : words || word + "s");
 }
 
-function setStatus(message, action) {
-    var status = document.getElementById("status");
-    status.replaceChildren(message);
-    if (action) {
-        status.append(" ", element("button", { textContent: action.label, onclick: action.run }));
-    }
+// icon of the site, from the browser cache (needs the "favicon" permission)
+function faviconUrl(url) {
+    return chrome.runtime.getURL("/_favicon/") + "?pageUrl=" + encodeURIComponent(url) + "&size=32";
+}
+
+function formatDate(time) {
+    if (!time) return "";
+    return new Date(time).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+}
+
+// message at the bottom of the page, with an Undo button while there is
+// something to undo
+var toastTimer = null;
+function showToast(message) {
+    document.getElementById("toast-message").textContent = message;
+    document.getElementById("toast-undo").hidden = !lastRemoved.length;
+    document.getElementById("toast").hidden = false;
+    clearTimeout(toastTimer);
+    // keep it while it offers Undo
+    if (!lastRemoved.length) toastTimer = setTimeout(hideToast, 6000);
+}
+
+function hideToast() {
+    document.getElementById("toast").hidden = true;
+}
+
+// modal dialog, resolves to true if the user confirms
+function confirmDialog(title, text, button) {
+    var dialog = document.getElementById("confirm");
+    document.getElementById("confirm-title").textContent = title;
+    document.getElementById("confirm-text").textContent = text;
+    document.getElementById("confirm-ok").textContent = button;
+    dialog.returnValue = "";
+    dialog.showModal();
+    return new Promise(function(resolve) {
+        dialog.addEventListener("close", function() {
+            resolve(dialog.returnValue == "ok");
+        }, { once: true });
+    });
 }
 
 function keyFunction() {
@@ -56,6 +92,7 @@ function keyFunction() {
 function refresh() {
     chrome.bookmarks.getTree().then(function(tree) {
         groups = groupDuplicates(flattenTree(tree), keyFunction());
+        loaded = true;
         render();
     });
 }
@@ -67,17 +104,67 @@ function scheduleRefresh() {
     refreshTimer = setTimeout(refresh, 300);
 }
 
+function matchesFilter(group, filter) {
+    if (!filter) return true;
+    return group.bookmarks.some(function(b) {
+        return (b.title + " " + b.url + " " + b.path.join(" ")).toLowerCase().includes(filter);
+    });
+}
+
+function renderGroup(group) {
+    var first = group.bookmarks[0];
+    var list = element("ul", { className: "copies" });
+    group.bookmarks.forEach(function(bookmark) {
+        var checkbox = element("input", {
+            type: "checkbox",
+            id: "bookmark-" + bookmark.id,
+            onchange: function() { toggle(group, bookmark, checkbox); }
+        });
+        var path = bookmark.path.length ? element("span", { className: "path", textContent: bookmark.path.join(" › ") }) : null;
+        var label = element("label", { htmlFor: checkbox.id, className: "copy-text" }, [
+            path,
+            element("span", { className: "copy-title", textContent: bookmark.title || bookmark.url, title: bookmark.title }),
+            bookmark.url != first.url ? element("span", { className: "variant", textContent: bookmark.url, title: bookmark.url }) : null
+        ]);
+        var row = element("li", { className: "copy" }, [
+            checkbox,
+            label,
+            element("span", { className: "date", textContent: formatDate(bookmark.dateAdded), title: "Date added" }),
+            element("span", { className: "tag" }),
+            element("button", {
+                className: "button small keep-only",
+                textContent: "Keep only this",
+                title: "Keep this copy and select the others for deletion",
+                onclick: function() { keepOnlyThis(group, bookmark); }
+            })
+        ]);
+        rows.set(bookmark.id, { row: row, checkbox: checkbox });
+        list.append(row);
+    });
+    return element("section", { className: "group" }, [
+        element("header", { className: "group-header" }, [
+            element("img", { className: "favicon", src: faviconUrl(first.url), alt: "", width: 20, height: 20 }),
+            element("div", { className: "group-heading" }, [
+                element("div", { className: "group-title", textContent: first.title || first.url }),
+                element("a", { className: "group-url", href: first.url, target: "_blank", rel: "noopener", textContent: first.url, title: "Open in a new tab" })
+            ]),
+            element("span", { className: "badge", textContent: group.bookmarks.length + " copies" })
+        ]),
+        list
+    ]);
+}
+
+function emptyState(title, text) {
+    return element("div", { className: "empty" }, [
+        element("img", { src: "icon128.png", alt: "", width: 96, height: 96 }),
+        element("h2", { textContent: title }),
+        element("p", { textContent: text })
+    ]);
+}
+
 function render() {
     var stillShown = new Set();
-    var table = element("table");
     groups.forEach(function(group) {
-        var mainUrl = group.bookmarks[0].url;
-        var tbody = element("tbody");
-        tbody.append(element("tr", { className: "url" }, [
-            element("td", { colSpan: 2 }, [
-                element("a", { href: mainUrl, target: "_blank", rel: "noopener", textContent: mainUrl })
-            ])
-        ]));
         group.bookmarks.forEach(function(bookmark, j) {
             if (!shown.has(bookmark.id) && j != 0) selected.add(bookmark.id);
             stillShown.add(bookmark.id);
@@ -87,22 +174,6 @@ function render() {
         if (group.bookmarks.every(function(b) { return selected.has(b.id); })) {
             selected.delete(group.bookmarks[0].id);
         }
-        group.bookmarks.forEach(function(bookmark) {
-            var checkbox = element("input", {
-                type: "checkbox",
-                id: "bookmark-" + bookmark.id,
-                checked: selected.has(bookmark.id),
-                onchange: function() { toggle(group, bookmark, checkbox); }
-            });
-            var label = element("label", { htmlFor: checkbox.id }, [
-                bookmark.path.concat([bookmark.title]).join(" > ")
-            ]);
-            if (bookmark.url != mainUrl) {
-                label.append(element("span", { className: "variant", textContent: bookmark.url }));
-            }
-            tbody.append(element("tr", {}, [element("td", {}, [checkbox]), element("td", {}, [label])]));
-        });
-        table.append(tbody);
     });
     // forget the bookmarks that are not duplicated anymore
     shown = stillShown;
@@ -110,15 +181,51 @@ function render() {
         if (!shown.has(id)) selected.delete(id);
     });
 
-    var n = groups.length;
+    var filter = document.getElementById("filter").value.trim().toLowerCase();
+    var visible = groups.filter(function(group) { return matchesFilter(group, filter); });
     var container = document.getElementById("bookmarks");
-    if (!n) {
-        container.replaceChildren("No duplicates found");
+    rows = new Map();
+    if (!groups.length) {
+        container.replaceChildren(emptyState("Your bookmarks are tidy!",
+            document.getElementById("normalize").checked
+                ? "No duplicated bookmarks found."
+                : "No duplicated bookmarks found. Turn on smart matching to also find links that differ only slightly."));
+    }
+    else if (!visible.length) {
+        container.replaceChildren(emptyState("Nothing matches the filter",
+            "No duplicated bookmark contains “" + filter + "”."));
     }
     else {
-        container.replaceChildren("found " + n + " duplicated link" + (n > 1 ? "s" : ""), table);
+        container.replaceChildren.apply(container, visible.map(renderGroup));
     }
-    updateButtons();
+
+    var copies = groups.reduce(function(n, g) { return n + g.bookmarks.length; }, 0);
+    document.getElementById("summary").textContent = groups.length
+        ? plural(groups.length, "link") + " saved more than once · "
+          + plural(copies - groups.length, "extra copy", "extra copies")
+        : "No duplicates";
+    document.getElementById("actionbar").hidden = !groups.length;
+    updateSelection();
+}
+
+// update the rows and the buttons after a change of the selection
+function updateSelection() {
+    rows.forEach(function(item, id) {
+        var deleting = selected.has(id);
+        item.checkbox.checked = deleting;
+        item.checkbox.setAttribute("aria-label", deleting ? "Selected for deletion" : "Kept");
+        item.row.classList.toggle("deleting", deleting);
+        item.row.querySelector(".tag").textContent = deleting ? "Delete" : "Keep";
+    });
+    var ids = idsToRemove(groups, selected);
+    var n = ids.length;
+    var hidden = ids.filter(function(id) { return !rows.has(id); }).length;
+    var text = n ? plural(n, "bookmark") + " selected for deletion" : "Nothing selected";
+    if (hidden) text += " (" + hidden + " hidden by the filter)";
+    document.getElementById("selection").textContent = text;
+    var button = document.getElementById("delete");
+    button.disabled = n == 0 || busy;
+    button.textContent = n ? "Delete " + plural(n, "bookmark") : "Delete";
 }
 
 function toggle(group, bookmark, checkbox) {
@@ -127,7 +234,7 @@ function toggle(group, bookmark, checkbox) {
         if (all) {
             // never delete every copy of a bookmark
             checkbox.checked = false;
-            setStatus("At least one copy of each bookmark is kept.", undoAction());
+            showToast("At least one copy of each bookmark is kept.");
             return;
         }
         selected.add(bookmark.id);
@@ -135,16 +242,15 @@ function toggle(group, bookmark, checkbox) {
     else {
         selected.delete(bookmark.id);
     }
-    // remove the warning above, but keep the undo button
-    if (!lastRemoved.length) setStatus("");
-    updateButtons();
+    updateSelection();
 }
 
-function updateButtons() {
-    var n = idsToRemove(groups, selected).length;
-    var button = document.getElementById("delete");
-    button.disabled = n == 0 || busy;
-    button.textContent = n ? "Delete " + n + " selected duplicate" + (n > 1 ? "s" : "") : "Delete selected duplicates";
+function keepOnlyThis(group, bookmark) {
+    group.bookmarks.forEach(function(b) {
+        if (b.id == bookmark.id) selected.delete(b.id);
+        else selected.add(b.id);
+    });
+    updateSelection();
 }
 
 function selectSuggested() {
@@ -152,20 +258,23 @@ function selectSuggested() {
     groups.forEach(function(group) {
         group.bookmarks.slice(1).forEach(function(b) { selected.add(b.id); });
     });
-    render();
+    updateSelection();
 }
 
 function deselectAll() {
     selected = new Set();
-    render();
+    updateSelection();
 }
 
 async function deleteSelected() {
     var requested = idsToRemove(groups, selected);
     if (!requested.length || busy) return;
-    if (!confirm("Delete " + requested.length + " bookmark" + (requested.length > 1 ? "s" : "") + "?")) return;
+    var ok = await confirmDialog("Delete " + plural(requested.length, "bookmark") + "?",
+        "At least one copy of each link is kept, and you can undo right after.",
+        "Delete");
+    if (!ok || busy) return;
     busy = true;
-    updateButtons();
+    updateSelection();
     // bookmarks may have changed (e.g. by sync) since the list was shown:
     // apply the keep-one rule again on the current tree
     var fresh = groupDuplicates(flattenTree(await chrome.bookmarks.getTree()), keyFunction());
@@ -187,11 +296,11 @@ async function deleteSelected() {
     busy = false;
     // if nothing was deleted, the previous deletion can still be undone
     if (removed.length) lastRemoved = removed;
-    var message = "Deleted " + removed.length + " bookmark" + (removed.length != 1 ? "s" : "") + ".";
+    var message = "Deleted " + plural(removed.length, "bookmark") + ".";
     if (failed) message += " " + failed + " could not be deleted.";
     var skipped = requested.length - ids.length;
     if (skipped) message += " " + skipped + " kept because the other copies were removed in the meantime.";
-    setStatus(message, undoAction());
+    showToast(message);
     refresh();
 }
 
@@ -199,7 +308,7 @@ async function deleteSelected() {
 async function undo() {
     if (busy) return;
     busy = true;
-    updateButtons();
+    updateSelection();
     var toRestore = restoreOrder(lastRemoved);
     lastRemoved = [];
     var failed = 0;
@@ -217,7 +326,7 @@ async function undo() {
         }
     }
     busy = false;
-    setStatus("Restored " + (toRestore.length - failed) + " bookmark" + (toRestore.length - failed != 1 ? "s" : "") + "."
+    showToast("Restored " + plural(toRestore.length - failed, "bookmark") + "."
               + (failed ? " " + failed + " could not be restored." : ""));
     refresh();
 }
@@ -229,9 +338,14 @@ document.addEventListener("DOMContentLoaded", function() {
         saveOption(normalize.checked);
         refresh();
     });
+    document.getElementById("filter").addEventListener("input", function() {
+        if (loaded) render();
+    });
     document.getElementById("suggested").addEventListener("click", selectSuggested);
     document.getElementById("clear").addEventListener("click", deselectAll);
     document.getElementById("delete").addEventListener("click", deleteSelected);
+    document.getElementById("toast-undo").addEventListener("click", undo);
+    document.getElementById("toast-close").addEventListener("click", hideToast);
 
     // keep the list up to date when bookmarks are changed elsewhere
     [chrome.bookmarks.onCreated, chrome.bookmarks.onRemoved, chrome.bookmarks.onChanged,

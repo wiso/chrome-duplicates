@@ -1,13 +1,26 @@
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-  <script src="jquery.min.js"></script>
-  <script src="main.js"></script>
+  <meta charset="utf-8">
+  <title>Bookmark Cleaner</title>
   <link rel="stylesheet" href="style.css">
+  <script src="duplicates.js"></script>
+  <script src="main.js"></script>
 </head>
 <body>
   <h1>List of duplicated bookmarks</h1>
-  <input type="submit" id="clear"  value="Deselect all" />
-  <input type="submit" id="delete" value="Delete all selected duplicates" />
+  <p>
+    <label>
+      <input type="checkbox" id="normalize">
+      Also match URLs that differ only in http/https, "www.", trailing slash, #fragment or tracking parameters
+    </label>
+  </p>
+  <p>
+    <button id="suggested">Select suggested</button>
+    <button id="clear">Deselect all</button>
+    <button id="delete" disabled>Delete selected duplicates</button>
+  </p>
+  <p id="status" role="status"></p>
 
   <div id="bookmarks"></div>
 </body>

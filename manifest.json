@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "Bookmark Cleaner",
     "version": "0.2.0",
-    "description": "A browser extension to clean your bookmarks",
+    "description": "Find and remove duplicate bookmarks. Smart URL matching, always keeps one copy, one-click undo. Private: no tracking.",
     "icons": {
         "16": "icon16.png",
         "48": "icon48.png",

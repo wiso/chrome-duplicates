@@ -21,7 +21,7 @@
   <a href="https://chromewebstore.google.com/detail/bookmark-cleaner/apmbebpbnhlmonbpggbaljkinnfgpmki"><img src="https://img.shields.io/chrome-web-store/v/apmbebpbnhlmonbpggbaljkinnfgpmki?label=Chrome%20Web%20Store" alt="Chrome Web Store version"></a>
   <a href="https://chromewebstore.google.com/detail/bookmark-cleaner/apmbebpbnhlmonbpggbaljkinnfgpmki"><img src="https://img.shields.io/chrome-web-store/users/apmbebpbnhlmonbpggbaljkinnfgpmki" alt="Chrome Web Store users"></a>
   <img src="https://img.shields.io/badge/Manifest-V3-blue" alt="Manifest V3">
-  <img src="https://img.shields.io/badge/network%20access-none-brightgreen" alt="No network access">
+  <img src="https://img.shields.io/badge/tracking-none-brightgreen" alt="No tracking">
   <img src="https://img.shields.io/badge/dependencies-none-brightgreen" alt="No dependencies">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"></a>
 </p>
@@ -48,6 +48,13 @@ your other devices.
   this** on the copy you prefer. Every copy is clearly marked *Keep* or
   *Delete*.
 - 🔎 **Filter** by title, URL or folder to go through large collections.
+- 📁 **Empty folders**: finds folders without bookmarks (also nested ones)
+  and removes them.
+- 🗂️ **Same-name folders**: merges folders with the same name in the same
+  place, moving everything into the oldest one.
+- 🔗 **Broken links** (opt-in): checks every bookmarked page and lists the
+  ones that do not exist anymore (404/410), the unreachable sites and the
+  server errors.
 - 🛡️ **You can't lose a bookmark**: at least one copy of each link is always
   kept, even if things change while you are deciding.
 - ↩️ **Undo**: changed your mind? One click puts every deleted bookmark back,
@@ -56,9 +63,11 @@ your other devices.
   change, without losing your selection.
 - 🌗 **Looks at home**: clean card layout with site icons, light and dark
   mode following your system.
-- 🔒 **Private by design**: no network access, no tracking, no analytics. It
-  only reads your bookmarks and the site icons already cached by the
-  browser, and everything stays on your computer.
+- 🔒 **Private by design**: no tracking, no analytics, no data sent anywhere.
+  It reads your bookmarks and the site icons already cached by the browser.
+  Only if you start the broken-link check does it ask for access to the
+  sites, and then it contacts each bookmarked page just to see if it still
+  exists; you can revoke the access at any time.
 - 🪶 **Lightweight**: a few kilobytes of plain JavaScript, no frameworks.
 
 ## How to use it
@@ -67,6 +76,8 @@ your other devices.
 2. Review the duplicates, grouped by link. Click a copy to switch it
    between *Keep* and *Delete*, or click the link to open it in a new tab.
 3. Press **Delete**, confirm, done. Press **Undo** if you need it.
+4. Use the other tabs to clean up empty folders, merge folders with the same
+   name and find broken links.
 
 ## Install
 

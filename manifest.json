@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "Bookmark Cleaner",
-    "version": "0.0.2",
+    "version": "0.1.0",
     "description": "A browser extension to clean your bookmarks",
     "icons": {
         "16": "icon16.png",
@@ -13,12 +13,14 @@
     "permissions": [
         "bookmarks"
     ],
+    "background": {
+        "service_worker": "background.js"
+    },
     "action": {
         "default_title": "Bookmark Cleaner",
-        "default_icon": "icon128.png",
-        "default_popup": "popup.html"
+        "default_icon": "icon128.png"
     },
-    "options_page": "popup.html",
+    "options_page": "main.html",
     "offline_enabled": true,
     "content_security_policy": {
         "extension_pages": "script-src 'self' ; object-src 'self'"

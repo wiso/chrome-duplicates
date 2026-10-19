@@ -13,7 +13,7 @@
         "bookmarks"
     ],
     "action": {
-        "default_title": "Bookmark Clearner",
+        "default_title": "Bookmark Cleaner",
         "default_icon": "icon128.png",
         "default_popup": "popup.html"
     },

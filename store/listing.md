@@ -14,11 +14,14 @@ package*).
 
 ## Name
 
-The name and the summary come from `manifest.json`. Another extension called
-"Bookmark Cleaner" exists in the store; adding the main keyword to the name
-helps people searching for it, for example:
+The name and the summary come from `manifest.json`:
 
     Bookmark Cleaner – Remove Duplicate Bookmarks
+
+Another extension called "Bookmark Cleaner" exists in the store: the main
+keyword in the name helps people searching for it. `short_name` keeps
+"Bookmark Cleaner" where space is limited; the toolbar tooltip
+(`action.default_title`) is also "Bookmark Cleaner".
 
 ## Summary (from `manifest.json`, max 132 characters)
 

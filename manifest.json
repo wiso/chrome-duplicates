@@ -1,6 +1,7 @@
 {
     "manifest_version": 3,
-    "name": "Bookmark Cleaner",
+    "name": "Bookmark Cleaner – Remove Duplicate Bookmarks",
+    "short_name": "Bookmark Cleaner",
     "version": "0.2.0",
     "description": "Find and remove duplicate bookmarks. Smart URL matching, always keeps one copy, one-click undo. Private: no tracking.",
     "icons": {

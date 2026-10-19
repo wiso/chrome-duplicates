@@ -37,6 +37,10 @@ function element(tag, properties, children) {
     return el;
 }
 
+function undoAction() {
+    return lastRemoved.length ? { label: "Undo", run: undo } : null;
+}
+
 function setStatus(message, action) {
     var status = document.getElementById("status");
     status.replaceChildren(message);
@@ -45,10 +49,13 @@ function setStatus(message, action) {
     }
 }
 
+function keyFunction() {
+    return document.getElementById("normalize").checked ? normalizeUrl : undefined;
+}
+
 function refresh() {
-    var normalize = document.getElementById("normalize").checked;
     chrome.bookmarks.getTree().then(function(tree) {
-        groups = groupDuplicates(flattenTree(tree), normalize ? normalizeUrl : undefined);
+        groups = groupDuplicates(flattenTree(tree), keyFunction());
         render();
     });
 }
@@ -74,6 +81,13 @@ function render() {
         group.bookmarks.forEach(function(bookmark, j) {
             if (!shown.has(bookmark.id) && j != 0) selected.add(bookmark.id);
             stillShown.add(bookmark.id);
+        });
+        // groups can change (e.g. normalization turned off): never show
+        // every copy as selected
+        if (group.bookmarks.every(function(b) { return selected.has(b.id); })) {
+            selected.delete(group.bookmarks[0].id);
+        }
+        group.bookmarks.forEach(function(bookmark) {
             var checkbox = element("input", {
                 type: "checkbox",
                 id: "bookmark-" + bookmark.id,
@@ -113,7 +127,7 @@ function toggle(group, bookmark, checkbox) {
         if (all) {
             // never delete every copy of a bookmark
             checkbox.checked = false;
-            setStatus("At least one copy of each bookmark is kept.");
+            setStatus("At least one copy of each bookmark is kept.", undoAction());
             return;
         }
         selected.add(bookmark.id);
@@ -146,33 +160,39 @@ function deselectAll() {
     render();
 }
 
-function deleteSelected() {
-    var ids = idsToRemove(groups, selected);
-    if (!ids.length || busy) return;
-    if (!confirm("Delete " + ids.length + " bookmark" + (ids.length > 1 ? "s" : "") + "?")) return;
+async function deleteSelected() {
+    var requested = idsToRemove(groups, selected);
+    if (!requested.length || busy) return;
+    if (!confirm("Delete " + requested.length + " bookmark" + (requested.length > 1 ? "s" : "") + "?")) return;
+    busy = true;
+    updateButtons();
+    // bookmarks may have changed (e.g. by sync) since the list was shown:
+    // apply the keep-one rule again on the current tree
+    var fresh = groupDuplicates(flattenTree(await chrome.bookmarks.getTree()), keyFunction());
+    var ids = idsToRemove(fresh, new Set(requested));
     var byId = new Map();
-    groups.forEach(function(group) {
+    fresh.forEach(function(group) {
         group.bookmarks.forEach(function(b) { byId.set(b.id, b); });
     });
     var removed = [];
     var failed = 0;
-    busy = true;
-    updateButtons();
-    Promise.all(ids.map(function(id) {
+    await Promise.all(ids.map(function(id) {
         return chrome.bookmarks.remove(id).then(function() {
             removed.push(byId.get(id));
         }, function(e) {
             console.error("cannot remove " + id + ": " + e.message);
             failed++;
         });
-    })).then(function() {
-        busy = false;
-        lastRemoved = removed;
-        var message = "Deleted " + removed.length + " bookmark" + (removed.length != 1 ? "s" : "") + ".";
-        if (failed) message += " " + failed + " could not be deleted.";
-        setStatus(message, removed.length ? { label: "Undo", run: undo } : null);
-        refresh();
-    });
+    }));
+    busy = false;
+    // if nothing was deleted, the previous deletion can still be undone
+    if (removed.length) lastRemoved = removed;
+    var message = "Deleted " + removed.length + " bookmark" + (removed.length != 1 ? "s" : "") + ".";
+    if (failed) message += " " + failed + " could not be deleted.";
+    var skipped = requested.length - ids.length;
+    if (skipped) message += " " + skipped + " kept because the other copies were removed in the meantime.";
+    setStatus(message, undoAction());
+    refresh();
 }
 
 // recreate the bookmarks removed by the last deletion, at their position

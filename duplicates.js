@@ -16,13 +16,15 @@ function normalizeUrl(url) {
     }
     if (u.protocol != "http:" && u.protocol != "https:") return url;
     var host = u.host.toLowerCase().replace(/^www\./, "");
+    // user and password can select different resources, keep them
+    var userinfo = u.username ? u.username + (u.password ? ":" + u.password : "") + "@" : "";
     var path = u.pathname.replace(/\/+$/, "");
     var params = [];
     u.searchParams.forEach(function(value, name) {
         if (!TRACKING_PARAMS.test(name)) params.push([name, value]);
     });
     var query = new URLSearchParams(params).toString();
-    return host + path + (query ? "?" + query : "");
+    return userinfo + host + path + (query ? "?" + query : "");
 }
 
 // Flatten the tree returned by chrome.bookmarks.getTree into a list of

@@ -7,6 +7,8 @@ var selected = new Set();
 var shown = new Set();
 // bookmarks removed by the last deletion, to undo it
 var lastRemoved = [];
+// true while a deletion or an undo is running
+var busy = false;
 
 var NORMALIZE_KEY = "normalizeUrls";
 
@@ -127,7 +129,7 @@ function toggle(group, bookmark, checkbox) {
 function updateButtons() {
     var n = idsToRemove(groups, selected).length;
     var button = document.getElementById("delete");
-    button.disabled = n == 0;
+    button.disabled = n == 0 || busy;
     button.textContent = n ? "Delete " + n + " selected duplicate" + (n > 1 ? "s" : "") : "Delete selected duplicates";
 }
 
@@ -146,7 +148,7 @@ function deselectAll() {
 
 function deleteSelected() {
     var ids = idsToRemove(groups, selected);
-    if (!ids.length) return;
+    if (!ids.length || busy) return;
     if (!confirm("Delete " + ids.length + " bookmark" + (ids.length > 1 ? "s" : "") + "?")) return;
     var byId = new Map();
     groups.forEach(function(group) {
@@ -154,6 +156,8 @@ function deleteSelected() {
     });
     var removed = [];
     var failed = 0;
+    busy = true;
+    updateButtons();
     Promise.all(ids.map(function(id) {
         return chrome.bookmarks.remove(id).then(function() {
             removed.push(byId.get(id));
@@ -162,6 +166,7 @@ function deleteSelected() {
             failed++;
         });
     })).then(function() {
+        busy = false;
         lastRemoved = removed;
         var message = "Deleted " + removed.length + " bookmark" + (removed.length != 1 ? "s" : "") + ".";
         if (failed) message += " " + failed + " could not be deleted.";
@@ -172,6 +177,9 @@ function deleteSelected() {
 
 // recreate the bookmarks removed by the last deletion, at their position
 async function undo() {
+    if (busy) return;
+    busy = true;
+    updateButtons();
     var toRestore = restoreOrder(lastRemoved);
     lastRemoved = [];
     var failed = 0;
@@ -188,6 +196,7 @@ async function undo() {
             }
         }
     }
+    busy = false;
     setStatus("Restored " + (toRestore.length - failed) + " bookmark" + (toRestore.length - failed != 1 ? "s" : "") + "."
               + (failed ? " " + failed + " could not be restored." : ""));
     refresh();

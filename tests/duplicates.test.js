@@ -52,6 +52,9 @@ test("normalizeUrl", () => {
     assert.strictEqual(normalizeUrl("http://example.com"), "example.com");
     // the path and the other parameters are kept as they are
     assert.strictEqual(normalizeUrl("https://example.com/A?x=2&y=1"), "example.com/A?x=2&y=1");
+    // user and password are kept
+    assert.notStrictEqual(normalizeUrl("https://alice@example.com/r"), normalizeUrl("https://bob@example.com/r"));
+    assert.strictEqual(normalizeUrl("https://alice:pw@www.example.com/r/"), "alice:pw@example.com/r");
     // non http(s) URLs and invalid URLs are not changed
     assert.strictEqual(normalizeUrl("javascript:alert(1)"), "javascript:alert(1)");
     assert.strictEqual(normalizeUrl("file:///home/a/"), "file:///home/a/");

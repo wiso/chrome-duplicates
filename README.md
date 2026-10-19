@@ -17,10 +17,7 @@
   <img src="https://img.shields.io/badge/dependencies-none-brightgreen" alt="No dependencies">
 </p>
 
-<p align="center">
-  <img src="screenshot-light.png" alt="Bookmark Cleaner showing duplicated bookmarks grouped by link" width="49%">
-  <img src="screenshot-dark.png" alt="The same page in dark mode" width="49%">
-</p>
+![Bookmark Cleaner showing duplicated bookmarks grouped by link, each copy marked Keep or Delete](screenshot.png)
 
 ## Why?
 

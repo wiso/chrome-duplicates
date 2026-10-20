@@ -25,7 +25,7 @@ keyword in the name helps people searching for it. `short_name` keeps
 
 ## Summary (from `manifest.json`, max 132 characters)
 
-    Find and remove duplicate bookmarks, empty folders and broken links. Smart URL matching, one-click undo. Private: no tracking.
+    Find and remove duplicate bookmarks, empty folders and broken links. Smart URL matching, one-click undo. Open source, no tracking.
 
 ## Category
 
@@ -36,7 +36,7 @@ Workflow & Planning (or Tools).
 ```
 Years of bookmarks, zero duplicates — in one click.
 
-You saved that article in "Read later", then again in "Work", then once more from your phone. Chrome has no built-in way to find duplicate bookmarks: Bookmark Cleaner finds them in a second, across every folder, including the ones synced from your other devices, and lets you remove them safely.
+You saved that article in "Read later", then again in "Work", then once more from your phone. Chrome has no built-in way to find duplicate bookmarks: Bookmark Cleaner, free and open source, finds them in a second, across every folder, including the ones synced from your other devices, and lets you remove them safely.
 
 FEATURES
 • Finds every duplicate bookmark and shows where each copy lives and when you saved it

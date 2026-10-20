@@ -77,7 +77,7 @@ TABS.duplicates = (function() {
                     onclick: function() { keepOnlyThis(group, bookmark); }
                 })
             ]);
-            rows.set(bookmark.id, { row: row, checkbox: checkbox });
+            rows.set(bookmark.id, { row: row, checkbox: checkbox, group: group });
             list.append(row);
         });
         return element("section", { className: "group" }, [
@@ -120,6 +120,12 @@ TABS.duplicates = (function() {
             item.checkbox.checked = deleting;
             item.row.classList.toggle("deleting", deleting);
             item.row.querySelector(".tag").textContent = deleting ? "Delete" : "Keep";
+            // "Keep only this" is useless when this copy is already the only
+            // one kept: hide it, keeping its space so that rows stay aligned
+            var alreadyOnly = !deleting && item.group.bookmarks.every(function(b) {
+                return b.id == id || selected.has(b.id);
+            });
+            item.row.querySelector(".keep-only").classList.toggle("useless", alreadyOnly);
         });
     }
 

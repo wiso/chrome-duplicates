@@ -404,6 +404,10 @@ main {
     }
 }
 
+.keep-only.useless {
+    visibility: hidden;
+}
+
 .group-subtitle {
     color: var(--muted);
     font-size: 13px;

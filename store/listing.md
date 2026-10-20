@@ -63,6 +63,8 @@ No analytics, no tracking, and your bookmarks are never sent anywhere. Bookmark 
 
 FREE AND OPEN SOURCE
 MIT license. Source code, issues and ideas: https://github.com/wiso/chrome-duplicates
+
+Like it? You can buy me a coffee: https://www.buymeacoffee.com/giurrero
 ```
 
 ## What's new in 0.3.0

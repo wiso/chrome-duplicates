@@ -695,6 +695,11 @@ dialog p {
     color: var(--muted);
 }
 
+.empty .support {
+    margin-top: 20px;
+    font-size: 13px;
+}
+
 /* small windows */
 
 @media (max-width: 640px) {

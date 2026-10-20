@@ -102,7 +102,8 @@ TABS.duplicates = (function() {
             container.replaceChildren(emptyState("Your bookmarks are tidy!",
                 document.getElementById("normalize").checked
                     ? "No duplicated bookmarks found."
-                    : "No duplicated bookmarks found. Turn on smart matching to also find links that differ only slightly."));
+                    : "No duplicated bookmarks found. Turn on smart matching to also find links that differ only slightly.",
+                supportLink()));
         }
         else if (!visible.length) {
             container.replaceChildren(emptyState("Nothing matches the filter",

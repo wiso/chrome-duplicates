@@ -72,6 +72,15 @@ function emptyState(title, text, extra) {
     ]);
 }
 
+var SUPPORT_URL = "https://www.buymeacoffee.com/giurrero";
+
+// discreet link to support the project, shown when there is nothing to clean
+function supportLink() {
+    return element("p", { className: "support" }, [
+        element("a", { href: SUPPORT_URL, target: "_blank", rel: "noopener", textContent: "\u2615 Like Bookmark Cleaner? Buy me a coffee" })
+    ]);
+}
+
 // message at the bottom of the page, with an Undo button while there is
 // something to undo
 var toastTimer = null;

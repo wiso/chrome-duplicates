@@ -24,6 +24,7 @@
   <img src="https://img.shields.io/badge/tracking-none-brightgreen" alt="No tracking">
   <img src="https://img.shields.io/badge/dependencies-none-brightgreen" alt="No dependencies">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"></a>
+  <a href="https://www.buymeacoffee.com/giurrero"><img src="https://img.shields.io/badge/Buy%20me%20a%20coffee-FFDD00?logo=buymeacoffee&logoColor=000" alt="Buy me a coffee"></a>
 </p>
 
 ![Bookmark Cleaner showing duplicated bookmarks grouped by link, each copy marked Keep or Delete](screenshot.png)
@@ -104,6 +105,11 @@ the Chrome API, and is tested with node:
 ```
 node --test
 ```
+
+## Support
+
+Bookmark Cleaner is free and will stay free. If it saved you some time, you
+can [buy me a coffee ☕](https://www.buymeacoffee.com/giurrero) — thank you!
 
 ## License
 

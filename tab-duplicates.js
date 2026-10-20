@@ -62,7 +62,8 @@ TABS.duplicates = (function() {
             var label = element("label", { htmlFor: checkbox.id, className: "copy-text" }, [
                 path,
                 element("span", { className: "copy-title", textContent: bookmark.title || bookmark.url, title: bookmark.title }),
-                bookmark.url != first.url ? element("span", { className: "variant", textContent: bookmark.url, title: bookmark.url }) : null
+                // always show the URL, so every copy reads the same way
+                element("span", { className: "variant", textContent: bookmark.url, title: bookmark.url })
             ]);
             var row = element("li", { className: "copy" }, [
                 checkbox,
